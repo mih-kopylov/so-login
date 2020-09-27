@@ -16,9 +16,6 @@ func main() {
 
 func authUsingSurf() {
 	creds := readCredentials()
-	if true {
-		os.Exit(0)
-	}
 	br := surf.NewBrowser()
 	br.SetUserAgent(agent.Chrome())
 	fatal(br, br.Open("https://stackoverflow.com"))
