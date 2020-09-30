@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/headzoo/surf"
 	"github.com/headzoo/surf/agent"
 	"github.com/headzoo/surf/browser"
@@ -8,6 +9,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 )
 
 func main() {
@@ -30,11 +32,11 @@ func authUsingSurf() {
 
 	pageContent := br.Body()
 	if strings.Contains(pageContent, "Edit profile and settings") {
-		log.Println("Successfully logged in")
+		writeLog("Successfully logged in")
 		os.Exit(0)
 	}
 	writePageContent(br)
-	log.Fatal("Could not find a marker string in page content")
+	writeErrorLog("Could not find a marker string in page content")
 }
 
 func readCredentials() credentials {
@@ -49,7 +51,7 @@ func readCredentials() credentials {
 		}
 		const separator = "="
 		if !strings.Contains(arg, separator) {
-			log.Fatal("Unknown argument ", arg)
+			writeErrorLog("Unknown argument ", arg)
 		}
 		parts := strings.Split(arg, separator)
 		name := parts[0]
@@ -60,14 +62,14 @@ func readCredentials() credentials {
 		} else if name == passwordArgument {
 			result.password = value
 		} else {
-			log.Fatal("Unknown argument ", arg)
+			writeErrorLog("Unknown argument ", arg)
 		}
 	}
 	if result.email == "" {
-		log.Fatal(emailArgument, " argument is required")
+		writeErrorLog(emailArgument, " argument is required")
 	}
 	if result.password == "" {
-		log.Fatal(passwordArgument, " argument is required")
+		writeErrorLog(passwordArgument, " argument is required")
 	}
 	return result
 }
@@ -75,12 +77,12 @@ func readCredentials() credentials {
 func writePageContent(browser *browser.Browser) {
 	file, err := os.Create("output.html")
 	if err != nil {
-		log.Fatal(err)
+		writeErrorLog(err)
 	}
 	defer closeFile(file)
 	_, err = io.WriteString(file, browser.Body())
 	if err != nil {
-		log.Fatal(err)
+		writeErrorLog(err)
 	}
 }
 
@@ -94,8 +96,27 @@ func closeFile(file *os.File) {
 func fatal(browser *browser.Browser, err error) {
 	if err != nil {
 		writePageContent(browser)
+		writeErrorLog(err)
+	}
+}
+
+func writeLog(values ...interface{}) {
+	log.Println(values)
+	file, err := os.OpenFile("log.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
 		log.Fatal(err)
 	}
+	defer closeFile(file)
+	stringToAppend := fmt.Sprintln(time.Now().Format(time.RFC3339), values)
+	_, err = file.WriteString(stringToAppend)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func writeErrorLog(values ...interface{}) {
+	writeLog(values)
+	os.Exit(1)
 }
 
 type credentials struct {
