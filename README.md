@@ -4,6 +4,8 @@ This is a tiny utility that opens [StackOverflow](https://stackoverflow.com) in 
 
 Used to help to get [Fanatic badge](https://stackoverflow.com/help/badges/83/fanatic).
 
+![Proof](image.png)
+
 # Usage 
 
 * run `go build ` to build an executable binary file
