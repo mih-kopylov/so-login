@@ -2,6 +2,8 @@
 
 This is a tiny utility that opens [StackOverflow](https://stackoverflow.com) in a virtual headless browser and logs in there using provided credentials.
 
+Used to help to get [Fanatic badge](https://stackoverflow.com/help/badges/83/fanatic).
+
 # Usage 
 
 * run `go build ` to build an executable binary file
